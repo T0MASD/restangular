@@ -314,6 +314,20 @@ describe("Restangular", function() {
       $httpBackend.flush();
     });
 
+    it('Set full response, use ResponseExtractor to return data, expect msg data to be the same as messages', function() {
+      Restangular.setFullResponse(true);
+      Restangular.setResponseExtractor(function (data, operation, what, url, response, deferred) {
+        var newResponse;
+        newResponse = response.data;
+        return newResponse;
+      });
+      Restangular.one('accounts', 1).all('messages').getList().then(function(msgs) {
+        expect(Restangular.stripRestangular(msgs)).toEqual(Restangular.stripRestangular(messages));
+      });
+      $httpBackend.expectGET('/accounts/1/messages');
+      $httpBackend.flush();
+    });
+
     it("Custom GET methods should work", function() {
       restangularAccounts.customGETLIST("messages").then(function(msgs) {
         expect(Restangular.stripRestangular(msgs)).toEqual(Restangular.stripRestangular(messages));
